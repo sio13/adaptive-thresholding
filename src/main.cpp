@@ -6,7 +6,12 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/opencv.hpp>
 #include <fstream>
+#include <string>
+
+
+#define METHOD "cv_mean"
 
 using namespace std;
 using namespace cv;
@@ -21,6 +26,12 @@ Mat readFile(const string &image_path) {
     return img;
 }
 
+string split_on_slash(const string& path){
+    size_t file_pos = path.find_last_of('/');
+    string file_name = path.substr(file_pos + 1, path.length());
+    return file_name;
+}
+
 int main(int argc, char **argv) {
 
 
@@ -32,11 +43,24 @@ int main(int argc, char **argv) {
         if(!png_path.empty()){
             Mat img = readFile(png_path);
 
+            string png_file_name = split_on_slash(png_path);
+
             imshow("Display window", img);
             int k = waitKey(0); // Wait for a keystroke in the window
-            if (k == 's') {
-                imwrite("starry_night.png", img);
+
+            Mat img_ref, image_final;
+            cvtColor(img, img_ref, cv::COLOR_RGB2GRAY);
+
+
+            if(!strcmp("cv_gauss", METHOD)){
+                adaptiveThreshold(img_ref,image_final,255,ADAPTIVE_THRESH_GAUSSIAN_C,THRESH_BINARY,13,3);
+            } else if(!strcmp("cv_mean", METHOD)){
+                adaptiveThreshold(img_ref,image_final,255,ADAPTIVE_THRESH_MEAN_C,THRESH_BINARY,13,3);
             }
+
+            imshow("Display window", image_final);
+            k = waitKey(0);
+
         }
 
     }
