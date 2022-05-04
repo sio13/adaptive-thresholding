@@ -5,4 +5,5 @@ CMakeFiles/
 CMakeCache.txt
 .idea/
 adaptive-thresholding
-data/original_data
+data/augmented_data
+data/thresholded_references
