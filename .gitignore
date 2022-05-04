@@ -1,0 +1,8 @@
+cmake_install.cmake
+cmake-build-debug/
+Makefile
+CMakeFiles/
+CMakeCache.txt
+.idea/
+adaptive-thresholding
+data/original_data
