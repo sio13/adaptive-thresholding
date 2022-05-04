@@ -7,3 +7,7 @@ CMakeCache.txt
 adaptive-thresholding
 data/augmented_data
 data/thresholded_references
+data/augmented_images_paths.txt
+data/processed_data
+data/__pycache__/
+__pycache__
