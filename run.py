@@ -4,7 +4,7 @@ import subprocess
 import os
 import sys
 
-method = "mean"
+method = "cv_mean"
 area = 13
 constant = 3
 global_threshold = 50
@@ -26,7 +26,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'force_new':
     os.system("cd data && python3 generate_augmented_paths.py")
 
 print("Running thresholding")
-p = subprocess.run(f"./adaptive-thresholding {method} {area} {constant} {global_threshold}", shell=True)
+p = subprocess.run(f"./adaptive-thresholding {method} {area} {constant} {global_threshold} EXP", shell=True)
 
 print("Running evaluation")
 os.system("cd data && python3 evaluate_processed_data.py")

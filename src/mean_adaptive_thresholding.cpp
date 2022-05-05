@@ -13,44 +13,43 @@ void adaptiveThreshold(Mat &src, Mat &dst, int blockSize, double C) {
     for (int j = 0; j < src.rows; ++j) {
         for (int i = 0; i < src.cols; ++i) {
             int left;
-            if(i - 1 < 0){
+            if (i - 1 < 0) {
                 left = 0;
             } else {
-                left =  integral_image.at<int>(j, i - 1, 0);
+                left = integral_image.at<int>(j, i - 1, 0);
             }
             int up;
-            if(j - 1 < 0){
+            if (j - 1 < 0) {
                 up = 0;
             } else {
                 up = integral_image.at<int>(j - 1, i, 0);
             }
 
             int left_up;
-            if(j - 1 < 0 && i - 1 < 0){
+            if (j - 1 < 0 && i - 1 < 0) {
                 left_up = 0;
             } else {
                 left_up = integral_image.at<int>(j - 1, i - 1, 0);
             }
 
-            integral_image.at<int>(j, i, 0) = left + up + (int)src.at<unsigned char>(j, i, 0) - left_up;
+            integral_image.at<int>(j, i, 0) = left + up + (int) src.at<unsigned char>(j, i, 0) - left_up;
         }
     }
 
     int half_block_size = blockSize >> 1;
     for (int j = 0; j < src.rows; ++j) {
+        int j_minus_half_block_size = max(j - half_block_size - 1, 0);
+        int j_plus_half_block_size = min(j + half_block_size + 1, src.rows);
         for (int i = 0; i < src.cols; ++i) {
 
             int i_minus_half_block_size = max(i - half_block_size - 1, 0);
             int i_plus_half_block_size = min(i + half_block_size + 1, src.cols);
 
-            int j_minus_half_block_size = max(j - half_block_size - 1, 0);
-            int j_plus_half_block_size = min(j + half_block_size + 1, src.rows);
-
             int left_residual = integral_image.at<int>(j_plus_half_block_size - 1, i_minus_half_block_size - 1, 0);
             int up_residual = integral_image.at<int>(j_minus_half_block_size - 1, i_plus_half_block_size - 1, 0);
 
             int inters;
-            if (i_minus_half_block_size - 1 > 0 && j_minus_half_block_size - 1 > 0){
+            if (i_minus_half_block_size - 1 > 0 && j_minus_half_block_size - 1 > 0) {
                 inters = integral_image.at<int>(j_minus_half_block_size - 1, i_minus_half_block_size - 1, 0);
             } else {
                 inters = 0;
