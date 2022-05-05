@@ -2,7 +2,12 @@
 
 ## Data generator
 
-To run the script simply run:
+To run the script for the first time simply run:
+```bash
+./run.py force_new
+```
+
+If you already have data generated just run:
 ```bash
 ./run.py
 ```

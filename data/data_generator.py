@@ -76,7 +76,7 @@ def create_shaded_dataset(threshold_references_folder, augmented_data_folder, ra
             distances_matrix_ = distance_matrix_v2(image_=threshed_png_, index_=random_index_)
 
             for norm_c_, lighten_c_ in product(
-                    [230, 240, 250, 254, 256, 260, 265, 280, 300, 350, 400],
+                    [230, 240, 250, 254, 256, 260, 265, 280, 300, 350],
                     [70, 90, 100, 120]):
                 # restore original image
                 threshed_png_ = cv2.imread(os.path.join(threshold_references_folder, png_file_), cv2.IMREAD_GRAYSCALE)
