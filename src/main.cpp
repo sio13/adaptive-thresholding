@@ -5,6 +5,7 @@
 #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include <fstream>
@@ -13,7 +14,8 @@
 
 #define AREA 13
 #define CONSTANT 3
-#define METHOD "cv_gauss"
+#define GLOBAL_THRESHOLD 50
+#define METHOD "cv_otsu"
 #define SHOW_IM false
 #define VERBOSE false
 
@@ -37,7 +39,6 @@ string split_on_slash(const string &path) {
 }
 
 int main(int argc, char **argv) {
-
 
     string processed_data_folder = "data/processed_data/";
     ifstream paths("data/augmented_images_paths.txt", ios_base::in);
@@ -76,12 +77,19 @@ int main(int argc, char **argv) {
                                   THRESH_BINARY,
                                   AREA,
                                   CONSTANT);
-            } else if(!strcmp("cv_global", METHOD)){
-                threshold( img_src, img_dst, 127, 255, THRESH_BINARY );
+            } else if (!strcmp("cv_global", METHOD)) {
+                threshold(img_src, img_dst, GLOBAL_THRESHOLD, 255, THRESH_BINARY);
+            } else if (!strcmp("cv_otsu", METHOD)) {
+                threshold(img_src, img_dst, 0, 255, THRESH_BINARY + THRESH_OTSU);
+            } else if (!strcmp("cv_otsu_gauss_blur", METHOD)) {
+                GaussianBlur(img_src,img_dst,Size(5, 5), 0);
+                threshold(img_dst, img_dst, 0, 255, THRESH_BINARY + THRESH_OTSU);
             }
+
+
             auto end = chrono::steady_clock::now();
             total_time += chrono::duration_cast<chrono::microseconds>(end - start).count();
-            if(VERBOSE){
+            if (VERBOSE) {
                 cout << "Thresholding: "
                      << chrono::duration_cast<chrono::microseconds>(end - start).count()
                      << " micros"

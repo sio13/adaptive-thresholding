@@ -1,3 +1,4 @@
+import argparse
 import os
 from random import randint
 
@@ -16,9 +17,10 @@ def distance_matrix_v2(image_, index_):
     return np.sqrt((i - index_[0]) ** 2 + (j - index_[1]) ** 2)
 
 
-def add_shadow_to_black_and_white(image_, distance_matrix_, normalize_coefficient_):
+def add_shadow_to_black_and_white(image_, distance_matrix_, normalize_coefficient_, lighten_coefficient=100):
     """
     Subtracts original image by distance array to create shadow
+    :param lighten_coefficient: coefficient to increase brightness in some points
     :param image_: original image with only one channel
     :param distance_matrix_: 2D numpy array with floating point numbers with same shape as image_
     :param normalize_coefficient_: distance_matrix_ is normalized to bring useful values
@@ -26,10 +28,13 @@ def add_shadow_to_black_and_white(image_, distance_matrix_, normalize_coefficien
     """
 
     distance_matrix_ = distance_matrix_ / normalize_coefficient_
-    xx = image_ - distance_matrix_ > 2
+    distance_matrix_ -= lighten_coefficient
+    xx = image_ - distance_matrix_ > 0
+    yy = image_ - distance_matrix_ < 255
 
-    image_[xx] -= distance_matrix_[xx].astype('uint8')
+    image_[np.logical_and(xx, yy)] -= distance_matrix_[np.logical_and(xx, yy)].astype('uint8')
     image_[xx != True] = 0
+    image_[yy != True] = 255
     return image_
 
 
@@ -69,7 +74,7 @@ def create_shaded_dataset(threshold_references_folder, augmented_data_folder, ra
             random_index_ = get_random_index(image_=threshed_png_)
             distances_matrix_ = distance_matrix_v2(image_=threshed_png_, index_=random_index_)
 
-            for normalizing_coefficient_ in [230, 240, 250, 254, 256, 260, 265]:
+            for normalizing_coefficient_ in [230, 240, 250, 254, 256, 260, 265, 280, 300, 350, 400]:
                 # restore original image
                 threshed_png_ = cv2.imread(os.path.join(threshold_references_folder, png_file_), cv2.IMREAD_GRAYSCALE)
                 distance_normalization_coefficient_ = distance_matrix_norm_coefficient(
@@ -83,5 +88,32 @@ def create_shaded_dataset(threshold_references_folder, augmented_data_folder, ra
 
 
 if __name__ == '__main__':
-    create_threshold_references("original_data", "thresholded_references")
-    create_shaded_dataset("thresholded_references", "augmented_data")
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Generator for shaded data")
+    parser.add_argument('--original_data_path',
+                        default='original_data',
+                        help='Original data before initial thresholding')
+
+    parser.add_argument('--threshold_references_data_path',
+                        default='thresholded_references',
+                        help='Path to folder with threshold samples')
+
+    parser.add_argument('--augmented_data_path',
+                        default='augmented_data',
+                        help='Path to folder with augmented data samples')
+
+    parser.add_argument('--random_indexes_per_sample',
+                        default=10,
+                        help='Number of entries in the root directory')
+
+    parser.add_argument('--needs_references',
+                        action='store_true',
+                        help='Set for generating new references')
+
+    args = parser.parse_args()
+
+    if args.needs_references:
+        create_threshold_references(args.original_data_path,
+                                    args.threshold_references_data_path)
+    create_shaded_dataset(args.threshold_references_data_path,
+                          args.augmented_data_path,
+                          random_indexes_=args.random_indexes_per_sample)

@@ -1,5 +1,6 @@
 import os
 
+import sys
 from data_generator import yield_png
 
 
@@ -12,4 +13,5 @@ def generate_augmented_paths(augmented_data_folder,
 
 
 if __name__ == '__main__':
-    generate_augmented_paths("augmented_data")
+    augmented_data_folder = "augmented_data" if len(sys.argv) <= 1 else sys.argv[1]
+    generate_augmented_paths(augmented_data_folder)
