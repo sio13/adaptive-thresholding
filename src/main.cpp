@@ -9,9 +9,11 @@
 #include <opencv2/opencv.hpp>
 #include <fstream>
 #include <string>
+#include <chrono>
 
-
-#define METHOD "cv_mean"
+#define AREA 13
+#define CONSTANT 3
+#define METHOD "cv_gauss"
 #define SHOW_IM false
 #define VERBOSE false
 
@@ -39,6 +41,7 @@ int main(int argc, char **argv) {
 
     string processed_data_folder = "data/processed_data/";
     ifstream paths("data/augmented_images_paths.txt", ios_base::in);
+    long long total_time = 0;
     while (paths) {
         string png_path;
         paths >> png_path;
@@ -53,30 +56,50 @@ int main(int argc, char **argv) {
             }
 
 
-            Mat img_ref, image_final;
-            cvtColor(img, img_ref, cv::COLOR_RGB2GRAY);
+            Mat img_src, img_dst;
+            cvtColor(img, img_src, cv::COLOR_RGB2GRAY);
 
-
+            auto start = chrono::steady_clock::now();
             if (!strcmp("cv_gauss", METHOD)) {
-                adaptiveThreshold(img_ref, image_final, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 13, 3);
+                adaptiveThreshold(img_src,
+                                  img_dst,
+                                  255,
+                                  ADAPTIVE_THRESH_GAUSSIAN_C,
+                                  THRESH_BINARY,
+                                  AREA,
+                                  CONSTANT);
             } else if (!strcmp("cv_mean", METHOD)) {
-                adaptiveThreshold(img_ref, image_final, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 13, 3);
+                adaptiveThreshold(img_src,
+                                  img_dst,
+                                  255,
+                                  ADAPTIVE_THRESH_MEAN_C,
+                                  THRESH_BINARY,
+                                  AREA,
+                                  CONSTANT);
+            } else if(!strcmp("cv_global", METHOD)){
+                threshold( img_src, img_dst, 127, 255, THRESH_BINARY );
             }
-            imwrite(processed_data_folder + png_file_name, image_final);
+            auto end = chrono::steady_clock::now();
+            total_time += chrono::duration_cast<chrono::microseconds>(end - start).count();
             if(VERBOSE){
+                cout << "Thresholding: "
+                     << chrono::duration_cast<chrono::microseconds>(end - start).count()
+                     << " micros"
+                     << endl;
+            }
+
+            imwrite(processed_data_folder + png_file_name, img_dst);
+            if (VERBOSE) {
                 cout << "Processing: " << png_path << endl;
             }
 
 
             if (SHOW_IM) {
-                imshow("Display window", image_final);
+                imshow("Display window", img_dst);
                 waitKey(0);
             }
-
-
         }
-
     }
-
-
+    cout << "Thresholding took: " << total_time << " microseconds";
+    return 0;
 }

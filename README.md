@@ -21,3 +21,8 @@ cd data
 python3 generate_augmented_paths.py
 ```
 
+Then you can build and run your solution:
+
+```bash
+cmake . && make && ./adaptive-thresholding
+```
