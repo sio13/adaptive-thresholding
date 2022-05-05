@@ -1,5 +1,6 @@
 import argparse
 import os
+from itertools import product
 from random import randint
 
 import cv2
@@ -74,16 +75,20 @@ def create_shaded_dataset(threshold_references_folder, augmented_data_folder, ra
             random_index_ = get_random_index(image_=threshed_png_)
             distances_matrix_ = distance_matrix_v2(image_=threshed_png_, index_=random_index_)
 
-            for normalizing_coefficient_ in [230, 240, 250, 254, 256, 260, 265, 280, 300, 350, 400]:
+            for norm_c_, lighten_c_ in product(
+                    [230, 240, 250, 254, 256, 260, 265, 280, 300, 350, 400],
+                    [70, 90, 100, 120]):
                 # restore original image
                 threshed_png_ = cv2.imread(os.path.join(threshold_references_folder, png_file_), cv2.IMREAD_GRAYSCALE)
                 distance_normalization_coefficient_ = distance_matrix_norm_coefficient(
                     distances_matrix_=distances_matrix_,
-                    normalizing_coefficient_=normalizing_coefficient_)
+                    normalizing_coefficient_=norm_c_)
                 res_ = add_shadow_to_black_and_white(image_=threshed_png_,
                                                      distance_matrix_=distances_matrix_,
-                                                     normalize_coefficient_=distance_normalization_coefficient_)
-                new_file_name_ = f"{random_index_[0]}_{random_index_[1]}_{normalizing_coefficient_}_{png_file_}"
+                                                     normalize_coefficient_=distance_normalization_coefficient_,
+                                                     lighten_coefficient=lighten_c_)
+                new_file_name_ = f"{random_index_[0]}_{random_index_[1]}_{norm_c_}_{lighten_c_}_{png_file_}"
+
                 cv2.imwrite(os.path.join(augmented_data_folder, new_file_name_), res_)
 
 

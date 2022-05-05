@@ -12,10 +12,6 @@
 #include <string>
 #include <chrono>
 
-#define AREA 13
-#define CONSTANT 3
-#define GLOBAL_THRESHOLD 50
-#define METHOD "cv_otsu"
 #define SHOW_IM false
 #define VERBOSE false
 
@@ -60,28 +56,32 @@ int main(int argc, char **argv) {
             Mat img_src, img_dst;
             cvtColor(img, img_src, cv::COLOR_RGB2GRAY);
 
+            int area = stoi(argv[2]);
+            int constant = stoi(argv[3]);
+            int global_threshold = stoi(argv[4]);
+
             auto start = chrono::steady_clock::now();
-            if (!strcmp("cv_gauss", METHOD)) {
+            if (!strcmp("cv_gauss", argv[1])) {
                 adaptiveThreshold(img_src,
                                   img_dst,
                                   255,
                                   ADAPTIVE_THRESH_GAUSSIAN_C,
                                   THRESH_BINARY,
-                                  AREA,
-                                  CONSTANT);
-            } else if (!strcmp("cv_mean", METHOD)) {
+                                  area,
+                                  constant);
+            } else if (!strcmp("cv_mean", argv[1])) {
                 adaptiveThreshold(img_src,
                                   img_dst,
                                   255,
                                   ADAPTIVE_THRESH_MEAN_C,
                                   THRESH_BINARY,
-                                  AREA,
-                                  CONSTANT);
-            } else if (!strcmp("cv_global", METHOD)) {
-                threshold(img_src, img_dst, GLOBAL_THRESHOLD, 255, THRESH_BINARY);
-            } else if (!strcmp("cv_otsu", METHOD)) {
+                                  area,
+                                  constant);
+            } else if (!strcmp("cv_global", argv[1])) {
+                threshold(img_src, img_dst, global_threshold, 255, THRESH_BINARY);
+            } else if (!strcmp("cv_otsu", argv[1])) {
                 threshold(img_src, img_dst, 0, 255, THRESH_BINARY + THRESH_OTSU);
-            } else if (!strcmp("cv_otsu_gauss_blur", METHOD)) {
+            } else if (!strcmp("cv_otsu_gauss_blur", argv[1])) {
                 GaussianBlur(img_src,img_dst,Size(5, 5), 0);
                 threshold(img_dst, img_dst, 0, 255, THRESH_BINARY + THRESH_OTSU);
             }
