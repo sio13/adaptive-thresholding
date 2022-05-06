@@ -13,12 +13,12 @@ if len(sys.argv) > 1 and sys.argv[1] == 'force_new':
     os.system("cmake . && make")
     print("Built successfully")
 
-    print("Creating folder data/augmented_data")
-    os.makedirs("data/augmented_data")
-    print("Creating folder data/processed_data")
-    os.makedirs("data/processed_data")
-    print("Creating folder data/thresholded_references")
-    os.makedirs("data/thresholded_references")
+    # print("Creating folder data/augmented_data")
+    # os.makedirs("data/augmented_data")
+    # print("Creating folder data/processed_data")
+    # os.makedirs("data/processed_data")
+    # print("Creating folder data/thresholded_references")
+    # os.makedirs("data/thresholded_references")
 
     print("Generating data")
     os.system("cd data && python3 data_generator.py --needs_references")
